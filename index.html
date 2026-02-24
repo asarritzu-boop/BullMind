@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>BULL MIND MASTER</title>
-<link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1Zj28QG0w_iFKMSL1rIECmpe8PuaCv_nA">
-<link rel="icon" type="image/png" sizes="192x192" href="https://drive.google.com/uc?export=view&id=1RIEGgNl5Cnqyt2XOrKb5ObdgQ2rjPjyH">
-<link rel="apple-touch-icon" href="https://drive.google.com/uc?export=view&id=1RIEGgNl5Cnqyt2XOrKb5ObdgQ2rjPjyH">
-<link rel="manifest" href="https://drive.google.com/uc?export=view&id=1hiSTSgFx_BjidMojsAkrt8Cj10w_m1uF">
+<link rel="icon" type="image/png" href="icona.png"> 
+<link rel="icon" sizes="192x192" href="icona192.png"> 
+<link rel="apple-touch-icon" href="icona192.png"> 
+<link rel="manifest" href="manifest.json">
     <style>
         :root { 
             --bull-orange: #f3a63b; --bull-green: #00ff7f; --bull-red: #ff4500; 
@@ -227,6 +227,12 @@ async function runFullScan() {
 function getColor(s) { return s.type === 'LONG' ? 'var(--bull-green)' : 'var(--bull-red)'; }
 function toggleScan() { isScanning = !isScanning; document.getElementById('btn-scan').innerText = isScanning ? "AVVIA SCAN" : "PAUSA SCAN"; }
 setInterval(runFullScan, 10000); runFullScan();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log("Service Worker Registrato"));
+    }
+    
 </script>
 </body>
 </html>
