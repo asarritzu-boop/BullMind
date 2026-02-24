@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>BULL MIND MASTER</title>
+<link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1Zj28QG0w_iFKMSL1rIECmpe8PuaCv_nA">
+<link rel="icon" type="image/png" sizes="192x192" href="https://drive.google.com/uc?export=view&id=1RIEGgNl5Cnqyt2XOrKb5ObdgQ2rjPjyH">
+<link rel="apple-touch-icon" href="https://drive.google.com/uc?export=view&id=1RIEGgNl5Cnqyt2XOrKb5ObdgQ2rjPjyH">
+<link rel="manifest" href="https://drive.google.com/uc?export=view&id=1hiSTSgFx_BjidMojsAkrt8Cj10w_m1uF">
+    <style>
+        :root { 
+            --bull-orange: #f3a63b; --bull-green: #00ff7f; --bull-red: #ff4500; 
+            --bull-blue: #00d4ff; --bg: #050505; --gold: #ffd700; --purple: #a020f0;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #eee; padding: 15px; margin: 0; }
+        .header { text-align: center; padding: 20px; border-bottom: 1px solid #333; margin-bottom: 20px; position: sticky; top: 0; background: var(--bg); z-index: 100; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 15px; }
+        
+        @keyframes ultimate-glow {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); border-color: var(--gold); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); border-color: #fff; }
+            100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); border-color: var(--gold); }
+        }
+        @keyframes danger-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+            50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(255, 69, 0, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+        }
+        
+        .ULTIMATE-COMBO { animation: ultimate-glow 1.5s infinite; border-left: 12px solid var(--gold) !important; background: linear-gradient(145deg, #111 0%, #1a1500 100%); }
+
+        .card { background: #111; border-radius: 12px; padding: 18px; border: 1px solid #333; border-left: 8px solid #444; position: relative; }
+        .symbol-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .symbol-link { font-size: 2.2em; font-weight: 900; color: white; text-decoration: none; letter-spacing: -1px; }
+        
+        .daily-info { display: flex; justify-content: space-between; font-size: 0.75em; color: #888; margin-bottom: 10px; }
+        .price-bar-container { height: 4px; background: #333; border-radius: 2px; margin: 5px 0 15px 0; position: relative; }
+        .price-dot { height: 8px; width: 8px; background: #fff; border-radius: 50%; position: absolute; top: -2px; transform: translateX(-50%); box-shadow: 0 0 5px #fff; }
+
+        .main-stats { display: flex; gap: 10px; margin-bottom: 15px; }
+        .stat-badge { flex: 1; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 1.1em; }
+        .range-badge { background: var(--bull-orange); color: #000; }
+        .flow-badge { background: var(--bull-blue); color: #000; }
+
+        /* MULTI TOUCH ALERT (da scalping3.html) */
+        .touch-pressure-alert { background: #ff003c; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; animation: danger-pulse 1s infinite; border: 2px solid #fff; }
+        .touch-support-alert { background: var(--bull-green); color: black; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; border: 2px solid #fff; }
+
+        .viagra-alert { background: var(--purple); color: white; padding: 8px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.85em; margin-bottom: 8px; }
+        .gap-alert { background: rgba(243, 166, 59, 0.1); color: var(--bull-orange); padding: 8px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid var(--bull-orange); margin-bottom: 8px; }
+        
+        .tf-table { width: 100%; font-size: 0.9em; margin: 10px 0; border-collapse: collapse; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+        .tf-row { border-bottom: 1px solid #222; }
+        .tf-row td { padding: 8px 12px; }
+        .sig-txt { font-weight: 900; }
+
+        /* LOGICA COLORI BAD (da scalping4.html) */
+        .bad-signal-box { padding: 10px; border-radius: 8px; margin-top: 8px; text-align: center; font-weight: 900; font-size: 0.9em; border: 2px solid transparent; }
+        .bad-long { background: rgba(0, 255, 127, 0.15); border-color: var(--bull-green); color: var(--bull-green); }
+        .bad-short { background: rgba(255, 69, 0, 0.15); border-color: var(--bull-red); color: var(--bull-red); }
+
+        .combo-tag { background: var(--gold); color: #000; padding: 5px; border-radius: 4px; font-weight: 900; font-size: 0.8em; text-align: center; margin-bottom: 10px; display: none; }
+        .ULTIMATE-COMBO .combo-tag { display: block; }
+
+        button { background: var(--bull-orange); border: none; padding: 12px 25px; border-radius: 8px; font-weight: 900; cursor: pointer; color: #000; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1 style="margin:0; color:var(--bull-orange)">BULL MASTER</h1>
+    <div style="font-size: 0.9em; color: #aaa; margin-top: 8px;">
+       
+        <button onclick="toggleScan()" id="btn-scan" style="margin-left:20px">PAUSA SCAN</button>
+    </div>
+</div>
+
+<div id="results" class="grid"></div>
+
+<script>
+let isScanning = true;
+const api = (path, p) => fetch(`https://api.bybit.com/v5/market/${path}?${new URLSearchParams(p)}`).then(r => r.json());
+
+function getEMA(p, n) {
+    if (p.length < n) return p[p.length-1];
+    let k = 2/(n+1);
+    return p.reduce((acc, val, i) => i === 0 ? val : val * k + acc * (1-k), p[0]);
+}
+
+function checkEMA10Rec(prices) {
+    const ema10 = getEMA(prices, 10), last = prices[prices.length-1], prev = prices[prices.length-2];
+    if (last > ema10 && prev < ema10) return { type: 'LONG', stat: 'LIVE' };
+    if (last < ema10 && prev > ema10) return { type: 'SHORT', stat: 'LIVE' };
+    return last > ema10 ? { type: 'LONG', stat: 'TREND' } : { type: 'SHORT', stat: 'TREND' };
+}
+
+function detectBadPattern(list, tfLabel) {
+    if (list.length < 3) return null;
+    const c1 = list[list.length-3], c2 = list[list.length-2], c3 = list[list.length-1];
+    const b1 = Math.abs(c1.c-c1.o), b2 = Math.abs(c2.c-c2.o);
+    if (c1.c > c1.o && c2.c < c2.o && b2 < b1 && c3.c > c1.h) return { tf: tfLabel, side: 'LONG', msg: `${tfLabel} BREAKOUT BAD` };
+    if (c1.c < c1.o && c2.c > c2.o && b2 < b1 && c3.c < c1.l) return { tf: tfLabel, side: 'SHORT', msg: `${tfLabel} BREAKDOWN BAD` };
+    return null;
+}
+
+async function runFullScan() {
+    if (!isScanning) return;
+    try {
+        const t = await api('tickers', { category: 'linear' });
+        const symbols = t.result.list.filter(x => x.symbol.endsWith('USDT') && (parseFloat(x.volume24h)*parseFloat(x.lastPrice)) > 1000000);
+
+        const results = await Promise.all(symbols.map(async (item) => {
+            const s = item.symbol;
+            const curP = parseFloat(item.lastPrice);
+            const high24h = parseFloat(item.highPrice24h);
+            const low24h = parseFloat(item.lowPrice24h);
+            const posPerc = ((curP - low24h) / (high24h - low24h)) * 100;
+
+            // Ripristinato limit: 235 per permettere la rilevazione dei tocchi nel tempo
+            const [k1, k5, k30] = await Promise.all([
+                api('kline', { category: 'linear', symbol: s, interval: '1', limit: 235 }),
+                api('kline', { category: 'linear', symbol: s, interval: '5', limit: 50 }),
+                api('kline', { category: 'linear', symbol: s, interval: '30', limit: 50 })
+            ]);
+
+            if (!k1.result.list.length) return null;
+            const list1 = k1.result.list.map(k=>({o:parseFloat(k[1]),h:parseFloat(k[2]),l:parseFloat(k[3]),c:parseFloat(k[4]),v:parseFloat(k[5])})).reverse();
+            const list5 = k5.result.list.map(k=>({o:parseFloat(k[1]),h:parseFloat(k[2]),l:parseFloat(k[3]),c:parseFloat(k[4])})).reverse();
+            const list30 = k30.result.list.map(k=>({o:parseFloat(k[1]),h:parseFloat(k[2]),l:parseFloat(k[3]),c:parseFloat(k[4])})).reverse();
+            
+            const p1 = list1.map(x=>x.c), p5 = list5.map(x=>x.c), p30 = list30.map(x=>x.c);
+            
+            // Filtro range rimesso a 0.50 (come in scalping3.html) per non perdere segnali
+            const maxR = Math.max(...list1.slice(-3).map(k=>((k.h-k.l)/k.l)*100));
+            if (maxR < 0.50) return null;
+
+            // LOGICA DEI 3 TOCCHI (Assorbimento) - Reinserita intatta
+            let highTouches = 0; let lowTouches = 0;
+            let lastHIdx = -99; let lastLIdx = -99;
+            
+            for(let i = list1.length - 1; i >= 0; i--) {
+                const c = list1[i];
+                if(Math.abs(c.h - high24h) / high24h * 100 <= 0.35) {
+                    if(lastHIdx - i >= 15 || lastHIdx === -99) { 
+                        highTouches++;
+                        lastHIdx = i;
+                    }
+                }
+                if(Math.abs(c.l - low24h) / low24h * 100 <= 0.35) {
+                    if(lastLIdx - i >= 15 || lastLIdx === -99) {
+                        lowTouches++;
+                        lastLIdx = i;
+                    }
+                }
+            }
+            
+            const isPushingHigh = highTouches >= 3 && (Math.abs(curP - high24h) / high24h * 100) <= 0.5;
+            const isPushingLow = lowTouches >= 3 && (Math.abs(curP - low24h) / low24h * 100) <= 0.5;
+
+            const ema5 = getEMA(p1, 5);
+            const avgC = list1.slice(-11, -1).reduce((acc, c) => acc + Math.abs(c.c - c.o), 0) / 10;
+            const isScollato = Math.abs(p1[p1.length-1] - ema5) > (avgC * 2.8);
+
+            let vCount = 0;
+            for(let i=1; i<=10; i++) {
+                const subE = getEMA(p1.slice(0, p1.length-i+1), 5);
+                if ((p1[p1.length-1]>ema5 && p1[p1.length-i]>subE)||(p1[p1.length-1]<ema5 && p1[p1.length-i]<subE)) vCount++;
+            }
+
+            const s1 = checkEMA10Rec(p1), s5 = checkEMA10Rec(p5), s30 = checkEMA10Rec(p30);
+            
+            const bad1 = detectBadPattern(list1, "1M");
+            const bad5 = detectBadPattern(list5, "5M");
+            const bad30 = detectBadPattern(list30, "30M");
+
+            const flow = (list1.slice(-5).reduce((acc,c)=>acc+(c.v*c.c),0)/1000000);
+            const isUltimate = (s1.type === s5.type && s5.type === s30.type) && (bad1 || bad5 || bad30) && flow > 20 && !isScollato;
+            
+            // Priorità visiva
+            const priority = (isPushingHigh || isPushingLow) ? 10000 : (isUltimate ? 1000 : maxR);
+
+            return { s, curP, high24h, low24h, posPerc, range: maxR, priority, isUltimate, isPushingHigh, isPushingLow, highTouches, lowTouches, isViagra: vCount>=10, flow: flow.toFixed(1), s1, s5, s30, bad1, bad5, bad30, isScollato };
+        }));
+
+        const filtered = results.filter(r=>r).sort((a,b)=> b.priority - a.priority);
+        document.getElementById('results').innerHTML = filtered.map(sig => `
+            <div class="card ${sig.isUltimate && !sig.isPushingHigh && !sig.isPushingLow ? 'ULTIMATE-COMBO' : ''}">
+                ${sig.isPushingHigh ? `<div class="touch-pressure-alert">🔥 ${sig.highTouches} TOCCHI AL MAX: BREAKOUT LONG IMMINENTE</div>` : ''}
+                ${sig.isPushingLow ? `<div class="touch-support-alert">🧊 ${sig.lowTouches} TOCCHI AL MIN: BREAKDOWN SHORT IMMINENTE</div>` : ''}
+                ${sig.isUltimate && !sig.isPushingHigh && !sig.isPushingLow ? `<div class="combo-tag">💎 COMBO DEFINITIVA</div>` : ''}
+                
+                <div class="symbol-header">
+                    <a href="https://www.bybit.com/trade/usdt/${sig.s}" target="_blank" class="symbol-link">${sig.s}</a>
+                    <span style="font-weight:bold; color:#aaa">$${sig.curP}</span>
+                </div>
+
+                <div class="daily-info">
+                    <span>L: ${sig.low24h}</span>
+                    <span>H: ${sig.high24h}</span>
+                </div>
+                <div class="price-bar-container">
+                    <div class="price-dot" style="left: ${sig.posPerc}%"></div>
+                </div>
+
+                <div class="main-stats">
+                    <div class="stat-badge flow-badge"><span style="font-size:0.5em; display:block">FLOW 5M</span>$${sig.flow}M</div>
+                    <div class="stat-badge range-badge"><span style="font-size:0.5em; display:block">RANGE 1M</span>${sig.range.toFixed(2)}%</div>
+                </div>
+
+                ${sig.isViagra ? `<div class="viagra-alert">⚡ VIAGRA DOMINANCE (10)</div>` : ''}
+                ${sig.isScollato ? `<div class="gap-alert">⚠️ SCOLLATO (ATTENDI)</div>` : ''}
+
+                <table class="tf-table">
+                    <tr class="tf-row"><td>1M</td><td class="sig-txt" style="color:${getColor(sig.s1)}">${sig.s1.type}</td><td>${sig.s1.stat}</td></tr>
+                    <tr class="tf-row"><td>5M</td><td class="sig-txt" style="color:${getColor(sig.s5)}">${sig.s5.type}</td><td>${sig.s5.stat}</td></tr>
+                    <tr class="tf-row"><td>30M</td><td class="sig-txt" style="color:${getColor(sig.s30)}">${sig.s30.type}</td><td>${sig.s30.stat}</td></tr>
+                </table>
+
+                ${sig.bad1 ? `<div class="bad-signal-box ${sig.bad1.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad1.msg}</div>` : ''}
+                ${sig.bad5 ? `<div class="bad-signal-box ${sig.bad5.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad5.msg}</div>` : ''}
+                ${sig.bad30 ? `<div class="bad-signal-box ${sig.bad30.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-width:4px">${sig.bad30.msg} 🔥</div>` : ''}
+            </div>
+        `).join('');
+    } catch (e) { console.error(e); }
+}
+
+function getColor(s) { return s.type === 'LONG' ? 'var(--bull-green)' : 'var(--bull-red)'; }
+function toggleScan() { isScanning = !isScanning; document.getElementById('btn-scan').innerText = isScanning ? "AVVIA SCAN" : "PAUSA SCAN"; }
+setInterval(runFullScan, 10000); runFullScan();
+</script>
+</body>
+</html>
