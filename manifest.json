@@ -1,0 +1,20 @@
+{
+  "short_name": "BullMind",
+  "name": "Bull Mind Master",
+  "icons": [
+    {
+      "src": "icona.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "icona192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
