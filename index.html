@@ -16,7 +16,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://asarritzu-boop.github.io/BullMind/icona192.png">
     
-    
     <style>
         :root { 
             --bull-orange: #f3a63b; --bull-green: #00ff7f; --bull-red: #ff4500; 
@@ -36,8 +35,12 @@
             50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(255, 69, 0, 0.9); }
             100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
         }
+        @keyframes squeeze-glow {
+            0% { box-shadow: 0 0 5px var(--bull-blue); }
+            50% { box-shadow: 0 0 20px var(--bull-blue); }
+            100% { box-shadow: 0 0 5px var(--bull-blue); }
+        }
 
-        /* ANIMAZIONI PER BAD ALLUNGATO */
         @keyframes flash-green {
             0% { box-shadow: 0 0 10px rgba(0, 255, 127, 0.2); border-color: var(--bull-green); }
             50% { box-shadow: 0 0 30px rgba(0, 255, 127, 0.8); border-color: #fff; }
@@ -52,6 +55,7 @@
         .ULTIMATE-COMBO { animation: ultimate-glow 1.5s infinite; border-left: 12px solid var(--gold) !important; background: linear-gradient(145deg, #111 0%, #1a1500 100%); }
         .bad-allungato-long { animation: flash-green 1s infinite; border-left: 12px solid var(--bull-green) !important; background: linear-gradient(145deg, #111 0%, #001a0d 100%); }
         .bad-allungato-short { animation: flash-red 1s infinite; border-left: 12px solid var(--bull-red) !important; background: linear-gradient(145deg, #111 0%, #1a0500 100%); }
+        .is-squeeze { animation: squeeze-glow 2s infinite; border-style: double !important; }
 
         .card { background: #111; border-radius: 12px; padding: 18px; border: 1px solid #333; border-left: 8px solid #444; position: relative; }
         .symbol-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -66,19 +70,19 @@
         .range-badge { background: var(--bull-orange); color: #000; }
         .flow-badge { background: var(--bull-blue); color: #000; }
 
-        /* MULTI TOUCH ALERT (da scalping3.html) */
-        .touch-pressure-alert { background: var(--bull-green); color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; animation: danger-pulse 1s infinite; border: 2px solid #fff; }
-        .touch-support-alert { background: #ff003c; color: black; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; border: 2px solid #fff; }
+        .touch-pressure-alert { background: var(--bull-green); color: black; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; animation: danger-pulse 1s infinite; border: 2px solid #fff; }
+        .touch-support-alert { background: #ff003c; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; border: 2px solid #fff; animation: danger-pulse 1s infinite; }
 
+        .pre-bad-alert { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px dashed #fff; padding: 8px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.85em; margin-bottom: 8px; }
         .viagra-alert { background: var(--purple); color: white; padding: 8px; border-radius: 8px; text-align: center; font-weight: 900; font-size: 0.85em; margin-bottom: 8px; }
         .gap-alert { background: rgba(243, 166, 59, 0.1); color: var(--bull-orange); padding: 8px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid var(--bull-orange); margin-bottom: 8px; }
+        .squeeze-badge { background: var(--bull-blue); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: 900; margin-left: 5px; vertical-align: middle; }
         
         .tf-table { width: 100%; font-size: 0.9em; margin: 10px 0; border-collapse: collapse; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
         .tf-row { border-bottom: 1px solid #222; }
         .tf-row td { padding: 8px 12px; }
         .sig-txt { font-weight: 900; }
 
-        /* LOGICA COLORI BAD (da scalping4.html) */
         .bad-signal-box { padding: 10px; border-radius: 8px; margin-top: 8px; text-align: center; font-weight: 900; font-size: 0.9em; border: 2px solid transparent; }
         .bad-long { background: rgba(0, 255, 127, 0.15); border-color: var(--bull-green); color: var(--bull-green); }
         .bad-short { background: rgba(255, 69, 0, 0.15); border-color: var(--bull-red); color: var(--bull-red); }
@@ -94,7 +98,6 @@
 <div class="header">
     <h1 style="margin:0; color:var(--bull-orange)">BULL MASTER</h1>
     <div style="font-size: 0.9em; color: #aaa; margin-top: 8px;">
-       
         <button onclick="toggleScan()" id="btn-scan" style="margin-left:20px">PAUSA SCAN</button>
     </div>
 </div>
@@ -131,49 +134,46 @@ function detectBadAllungato(list, tfLabel) {
     if (list.length < 5) return null;
     const c1 = list[list.length-5];
     const others = list.slice(list.length-4);
-    
     const allInside = others.every(c => c.h <= c1.h && c.l >= c1.l);
     if (!allInside) return null;
-
     if (c1.c > c1.o) {
         const highs = others.map(c => c.h);
         const isRising = highs[3] > highs[2] && highs[2] >= highs[1];
         const isProximity = (c1.h - highs[3]) / c1.h * 100 < 0.05;
-        if (isRising && isProximity) return { tf: tfLabel, side: 'LONG', msg: `${tfLabel} BAD ALLUNGATO LONG` };
+        if (isRising && isProximity) return { tf: tfLabel, side: 'LONG', msg: `${tfLabel} ALLUNGATO LONG` };
     }
-
     if (c1.c < c1.o) {
         const lows = others.map(c => c.l);
         const isFalling = lows[3] < lows[2] && lows[2] <= lows[1];
         const isProximity = (lows[3] - c1.l) / c1.l * 100 < 0.05;
-        if (isFalling && isProximity) return { tf: tfLabel, side: 'SHORT', msg: `${tfLabel} BAD ALLUNGATO SHORT` };
+        if (isFalling && isProximity) return { tf: tfLabel, side: 'SHORT', msg: `${tfLabel} ALLUNGATO SHORT` };
     }
     return null;
 }
 
-function detectSqueeze(list) {
-    const last10 = list.slice(-10);
-    const high = Math.max(...last10.map(c => c.h));
-    const low = Math.min(...last10.map(c => c.l));
-    const vola = ((high - low) / low) * 100;
-    return vola < 0.20 ? vola.toFixed(2) : null; 
+function detectSqueeze(list, tfLabel) {
+    if (list.length < 30) return null;
+    const lookback = list.slice(-30, -10);
+    const avgRange = lookback.reduce((acc, c) => acc + (c.h - c.l), 0) / lookback.length;
+    const recent = list.slice(-5);
+    const currentRange = recent.reduce((acc, c) => acc + (c.h - c.l), 0) / recent.length;
+    const ratio = currentRange / avgRange;
+    if (ratio < 0.45) return { tf: tfLabel, val: ((1 - ratio) * 100).toFixed(0) };
+    return null;
 }
 
-function detectPreBad(list) {
+function detectPreBad(list, tfLabel) {
     if (list.length < 3) return null;
     const c1 = list[list.length-3], c2 = list[list.length-2], c3 = list[list.length-1];
     const b1 = Math.abs(c1.c - c1.o), b2 = Math.abs(c2.c - c2.o);
-    // Anticipo Long: c3 sta mangiando c2 verso il massimo di c1
     if (c1.c > c1.o && c2.c < c2.o && b2 < b1) {
-        if (c3.c > c2.h && c3.c < c1.h) return { side: 'LONG', msg: 'PRE-BAD LONG IMMINENTE' };
+        if (c3.c > c2.h && c3.c < c1.h) return { tf: tfLabel, side: 'LONG', msg: `PRE-BAD ${tfLabel} LONG IMMINENTE` };
     }
-    // Anticipo Short: c3 sta mangiando c2 verso il minimo di c1
     if (c1.c < c1.o && c2.c > c2.o && b2 < b1) {
-        if (c3.c < c2.l && c3.c > c1.l) return { side: 'SHORT', msg: 'PRE-BAD SHORT IMMINENTE' };
+        if (c3.c < c2.l && c3.c > c1.l) return { tf: tfLabel, side: 'SHORT', msg: `PRE-BAD ${tfLabel} SHORT IMMINENTE` };
     }
     return null;
 }
-
 
 async function runFullScan() {
     if (!isScanning) return;
@@ -200,26 +200,17 @@ async function runFullScan() {
             const list30 = k30.result.list.map(k=>({o:parseFloat(k[1]),h:parseFloat(k[2]),l:parseFloat(k[3]),c:parseFloat(k[4])})).reverse();
             
             const p1 = list1.map(x=>x.c), p5 = list5.map(x=>x.c), p30 = list30.map(x=>x.c);
-            
             const maxR = Math.max(...list1.slice(-3).map(k=>((k.h-k.l)/k.l)*100));
             if (maxR < 0.50) return null;
 
-            let highTouches = 0; let lowTouches = 0;
-            let lastHIdx = -99; let lastLIdx = -99;
-            
+            let highTouches = 0, lowTouches = 0, lastHIdx = -99, lastLIdx = -99;
             for(let i = list1.length - 1; i >= 0; i--) {
                 const c = list1[i];
                 if(Math.abs(c.h - high24h) / high24h * 100 <= 0.35) {
-                    if(lastHIdx - i >= 15 || lastHIdx === -99) { 
-                        highTouches++;
-                        lastHIdx = i;
-                    }
+                    if(lastHIdx - i >= 15 || lastHIdx === -99) { highTouches++; lastHIdx = i; }
                 }
                 if(Math.abs(c.l - low24h) / low24h * 100 <= 0.35) {
-                    if(lastLIdx - i >= 15 || lastLIdx === -99) {
-                        lowTouches++;
-                        lastLIdx = i;
-                    }
+                    if(lastLIdx - i >= 15 || lastLIdx === -99) { lowTouches++; lastLIdx = i; }
                 }
             }
             
@@ -238,13 +229,11 @@ async function runFullScan() {
 
             const s1 = checkEMA10Rec(p1), s5 = checkEMA10Rec(p5), s30 = checkEMA10Rec(p30);
             
-            const bad1 = detectBadPattern(list1, "1M");
-            const bad5 = detectBadPattern(list5, "5M");
-            const bad30 = detectBadPattern(list30, "30M");
-
-            const badAll1 = detectBadAllungato(list1, "1M");
-            const badAll5 = detectBadAllungato(list5, "5M");
-            const badAll30 = detectBadAllungato(list30, "30M");
+            // Analisi Multi-Timeframe
+            const sq1 = detectSqueeze(list1, "1M"), sq5 = detectSqueeze(list5, "5M"), sq30 = detectSqueeze(list30, "30M");
+            const pb1 = detectPreBad(list1, "1M"), pb5 = detectPreBad(list5, "5M"), pb30 = detectPreBad(list30, "30M");
+            const bad1 = detectBadPattern(list1, "1M"), bad5 = detectBadPattern(list5, "5M"), bad30 = detectBadPattern(list30, "30M");
+            const badAll1 = detectBadAllungato(list1, "1M"), badAll5 = detectBadAllungato(list5, "5M"), badAll30 = detectBadAllungato(list30, "30M");
 
             const hasBadAllLong = (badAll1?.side === 'LONG' || badAll5?.side === 'LONG' || badAll30?.side === 'LONG');
             const hasBadAllShort = (badAll1?.side === 'SHORT' || badAll5?.side === 'SHORT' || badAll30?.side === 'SHORT');
@@ -252,77 +241,67 @@ async function runFullScan() {
             const flow = (list1.slice(-5).reduce((acc,c)=>acc+(c.v*c.c),0)/1000000);
             const isUltimate = (s1.type === s5.type && s5.type === s30.type) && (bad1 || bad5 || bad30) && flow > 20 && !isScollato;
             
-            // ... dentro il map di runFullScan ...
-const squeezeVal = detectSqueeze(list1);
-const preBad = detectPreBad(list1);
+            // Calcolo Priorità
+            let priority = maxR;
+            if (isUltimate) priority = 1000;
+            if (isPushingHigh || isPushingLow) priority = 10000;
+            if (badAll1 || badAll5 || badAll30) priority = 100000;
+            if (pb1 || pb5 || pb30) priority += 50000;
+            if (sq1 || sq5 || sq30) priority += 20000;
 
-// Aggiorna il calcolo della priorità
-let priority = maxR;
-if (isUltimate) priority = 1000;
-if (isPushingHigh || isPushingLow) priority = 10000;
-if (badAll1 || badAll5 || badAll30) priority = 100000;
-if (preBad) priority += 50000; // Bonus pesante per l'anticipo
-if (squeezeVal) priority += 20000; // Bonus per compressione
-
-
-            return { s, curP, high24h, low24h, posPerc, range: maxR, priority, isUltimate, isPushingHigh, isPushingLow, highTouches, lowTouches, isViagra: vCount>=10, flow: flow.toFixed(1), s1, s5, s30, bad1, bad5, bad30, badAll1, badAll5, badAll30, hasBadAllLong, hasBadAllShort, isScollato };
+            return { s, curP, high24h, low24h, posPerc, range: maxR, priority, isUltimate, isPushingHigh, isPushingLow, highTouches, lowTouches, isViagra: vCount>=10, flow: flow.toFixed(1), s1, s5, s30, bad1, bad5, bad30, badAll1, badAll5, badAll30, hasBadAllLong, hasBadAllShort, isScollato, sq1, sq5, sq30, pb1, pb5, pb30 };
         }));
 
         const filtered = results.filter(r=>r).sort((a,b)=> b.priority - a.priority);
         document.getElementById('results').innerHTML = filtered.map(sig => {
-            // Gestione della classe per il background e l'animazione della card
             let cardClass = '';
             if (sig.hasBadAllLong) cardClass = 'bad-allungato-long';
             else if (sig.hasBadAllShort) cardClass = 'bad-allungato-short';
             else if (sig.isUltimate && !sig.isPushingHigh && !sig.isPushingLow) cardClass = 'ULTIMATE-COMBO';
 
+            const squeezeBadges = [sig.sq1, sig.sq5, sig.sq30].filter(x => x).map(x => `<span class="squeeze-badge">${x.tf} -${x.val}%</span>`).join('');
+            const preBadAlerts = [sig.pb1, sig.pb5, sig.pb30].filter(x => x).map(x => `<div class="pre-bad-alert">⚡ ${x.msg}</div>`).join('');
+
             return `
-    <div class="card ${cardClass} ${sig.squeezeVal ? 'is-squeeze' : ''}">
+    <div class="card ${cardClass} ${sig.sq1 || sig.sq5 || sig.sq30 ? 'is-squeeze' : ''}">
         ${sig.isPushingHigh ? `<div class="touch-pressure-alert">🔥 ${sig.highTouches} TOCCHI AL MAX: BREAKOUT LONG IMMINENTE</div>` : ''}
         ${sig.isPushingLow ? `<div class="touch-support-alert">🧊 ${sig.lowTouches} TOCCHI AL MIN: BREAKDOWN SHORT IMMINENTE</div>` : ''}
         
         <div class="symbol-header">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <a href="https://www.bybit.com/trade/usdt/${sig.s}" target="_blank" class="symbol-link">${sig.s}</a>
-        ${sig.squeezeVal ? `<span class="squeeze-badge">SQUEEZE ${sig.squeezeVal}%</span>` : ''}
-    </div>
-    <span style="font-weight:bold; color:#aaa; font-size: 1.2em;">$${sig.curP}</span>
-</div>
-
-
-        ${sig.preBad ? `<div class="pre-bad-alert">⚡ ${sig.preBad.msg}</div>` : ''}
-               
-
-                <div class="daily-info">
-                    <span>L: ${sig.low24h}</span>
-                    <span>H: ${sig.high24h}</span>
-                </div>
-                <div class="price-bar-container">
-                    <div class="price-dot" style="left: ${sig.posPerc}%"></div>
-                </div>
-
-                <div class="main-stats">
-                    <div class="stat-badge flow-badge"><span style="font-size:0.5em; display:block">FLOW 5M</span>$${sig.flow}M</div>
-                    <div class="stat-badge range-badge"><span style="font-size:0.5em; display:block">RANGE 1M</span>${sig.range.toFixed(2)}%</div>
-                </div>
-
-                ${sig.isViagra ? `<div class="viagra-alert">⚡ VIAGRA DOMINANCE (10)</div>` : ''}
-                ${sig.isScollato ? `<div class="gap-alert">⚠️ SCOLLATO (ATTENDI)</div>` : ''}
-
-                <table class="tf-table">
-                    <tr class="tf-row"><td>1M</td><td class="sig-txt" style="color:${getColor(sig.s1)}">${sig.s1.type}</td><td>${sig.s1.stat}</td></tr>
-                    <tr class="tf-row"><td>5M</td><td class="sig-txt" style="color:${getColor(sig.s5)}">${sig.s5.type}</td><td>${sig.s5.stat}</td></tr>
-                    <tr class="tf-row"><td>30M</td><td class="sig-txt" style="color:${getColor(sig.s30)}">${sig.s30.type}</td><td>${sig.s30.stat}</td></tr>
-                </table>
-
-                ${sig.bad1 ? `<div class="bad-signal-box ${sig.bad1.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad1.msg}</div>` : ''}
-                ${sig.bad5 ? `<div class="bad-signal-box ${sig.bad5.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad5.msg}</div>` : ''}
-                ${sig.bad30 ? `<div class="bad-signal-box ${sig.bad30.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-width:4px">${sig.bad30.msg} 🔥</div>` : ''}
-
-                ${sig.badAll1 ? `<div class="bad-signal-box ${sig.badAll1.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed;">⏳ ${sig.badAll1.msg}</div>` : ''}
-                ${sig.badAll5 ? `<div class="bad-signal-box ${sig.badAll5.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed;">⏳ ${sig.badAll5.msg}</div>` : ''}
-                ${sig.badAll30 ? `<div class="bad-signal-box ${sig.badAll30.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed; border-width:4px">⏳ ${sig.badAll30.msg} 🔥</div>` : ''}
+            <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap; max-width: 70%;">
+                <a href="https://www.bybit.com/trade/usdt/${sig.s}" target="_blank" class="symbol-link">${sig.s}</a>
+                ${squeezeBadges}
             </div>
+            <span style="font-weight:900; color:#fff; font-size: 1.4em;">$${sig.curP}</span>
+        </div>
+
+        ${preBadAlerts}
+
+        <div class="daily-info"><span>L: ${sig.low24h}</span><span>H: ${sig.high24h}</span></div>
+        <div class="price-bar-container"><div class="price-dot" style="left: ${sig.posPerc}%"></div></div>
+
+        <div class="main-stats">
+            <div class="stat-badge flow-badge"><span style="font-size:0.5em; display:block">FLOW 5M</span>$${sig.flow}M</div>
+            <div class="stat-badge range-badge"><span style="font-size:0.5em; display:block">RANGE 1M</span>${sig.range.toFixed(2)}%</div>
+        </div>
+
+        ${sig.isViagra ? `<div class="viagra-alert">⚡ VIAGRA DOMINANCE (10)</div>` : ''}
+        ${sig.isScollato ? `<div class="gap-alert">⚠️ SCOLLATO (ATTENDI)</div>` : ''}
+
+        <table class="tf-table">
+            <tr class="tf-row"><td>1M</td><td class="sig-txt" style="color:${getColor(sig.s1)}">${sig.s1.type}</td><td>${sig.s1.stat}</td></tr>
+            <tr class="tf-row"><td>5M</td><td class="sig-txt" style="color:${getColor(sig.s5)}">${sig.s5.type}</td><td>${sig.s5.stat}</td></tr>
+            <tr class="tf-row"><td>30M</td><td class="sig-txt" style="color:${getColor(sig.s30)}">${sig.s30.type}</td><td>${sig.s30.stat}</td></tr>
+        </table>
+
+        ${sig.bad1 ? `<div class="bad-signal-box ${sig.bad1.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad1.msg}</div>` : ''}
+        ${sig.bad5 ? `<div class="bad-signal-box ${sig.bad5.side === 'LONG' ? 'bad-long' : 'bad-short'}">${sig.bad5.msg}</div>` : ''}
+        ${sig.bad30 ? `<div class="bad-signal-box ${sig.bad30.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-width:4px">${sig.bad30.msg} 🔥</div>` : ''}
+
+        ${sig.badAll1 ? `<div class="bad-signal-box ${sig.badAll1.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed;">⏳ ${sig.badAll1.msg}</div>` : ''}
+        ${sig.badAll5 ? `<div class="bad-signal-box ${sig.badAll5.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed;">⏳ ${sig.badAll5.msg}</div>` : ''}
+        ${sig.badAll30 ? `<div class="bad-signal-box ${sig.badAll30.side === 'LONG' ? 'bad-long' : 'bad-short'}" style="border-style: dashed; border-width:4px">⏳ ${sig.badAll30.msg} 🔥</div>` : ''}
+    </div>
         `}).join('');
     } catch (e) { console.error(e); }
 }
@@ -331,11 +310,9 @@ function getColor(s) { return s.type === 'LONG' ? 'var(--bull-green)' : 'var(--b
 function toggleScan() { isScanning = !isScanning; document.getElementById('btn-scan').innerText = isScanning ? "AVVIA SCAN" : "PAUSA SCAN"; }
 setInterval(runFullScan, 10000); runFullScan();
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-          .then(() => console.log("Service Worker Registrato"));
-    }
-    
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(() => console.log("Service Worker Registrato"));
+}
 </script>
 </body>
 </html>
