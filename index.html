@@ -151,6 +151,30 @@ function detectBadAllungato(list, tfLabel) {
     return null;
 }
 
+function detectSqueeze(list) {
+    const last10 = list.slice(-10);
+    const high = Math.max(...last10.map(c => c.h));
+    const low = Math.min(...last10.map(c => c.l));
+    const vola = ((high - low) / low) * 100;
+    return vola < 0.20 ? vola.toFixed(2) : null; 
+}
+
+function detectPreBad(list) {
+    if (list.length < 3) return null;
+    const c1 = list[list.length-3], c2 = list[list.length-2], c3 = list[list.length-1];
+    const b1 = Math.abs(c1.c - c1.o), b2 = Math.abs(c2.c - c2.o);
+    // Anticipo Long: c3 sta mangiando c2 verso il massimo di c1
+    if (c1.c > c1.o && c2.c < c2.o && b2 < b1) {
+        if (c3.c > c2.h && c3.c < c1.h) return { side: 'LONG', msg: 'PRE-BAD LONG IMMINENTE' };
+    }
+    // Anticipo Short: c3 sta mangiando c2 verso il minimo di c1
+    if (c1.c < c1.o && c2.c > c2.o && b2 < b1) {
+        if (c3.c < c2.l && c3.c > c1.l) return { side: 'SHORT', msg: 'PRE-BAD SHORT IMMINENTE' };
+    }
+    return null;
+}
+
+
 async function runFullScan() {
     if (!isScanning) return;
     try {
@@ -228,11 +252,18 @@ async function runFullScan() {
             const flow = (list1.slice(-5).reduce((acc,c)=>acc+(c.v*c.c),0)/1000000);
             const isUltimate = (s1.type === s5.type && s5.type === s30.type) && (bad1 || bad5 || bad30) && flow > 20 && !isScollato;
             
-            // Priorità visiva modificata: il Bad Allungato vince su tutto (Pole Position)
-            let priority = maxR;
-            if (isUltimate) priority = 1000;
-            if (isPushingHigh || isPushingLow) priority = 10000;
-            if (hasBadAllLong || hasBadAllShort) priority = 100000; // POLE POSITION MASSIMA
+            // ... dentro il map di runFullScan ...
+const squeezeVal = detectSqueeze(list1);
+const preBad = detectPreBad(list1);
+
+// Aggiorna il calcolo della priorità
+let priority = maxR;
+if (isUltimate) priority = 1000;
+if (isPushingHigh || isPushingLow) priority = 10000;
+if (badAll1 || badAll5 || badAll30) priority = 100000;
+if (preBad) priority += 50000; // Bonus pesante per l'anticipo
+if (squeezeVal) priority += 20000; // Bonus per compressione
+
 
             return { s, curP, high24h, low24h, posPerc, range: maxR, priority, isUltimate, isPushingHigh, isPushingLow, highTouches, lowTouches, isViagra: vCount>=10, flow: flow.toFixed(1), s1, s5, s30, bad1, bad5, bad30, badAll1, badAll5, badAll30, hasBadAllLong, hasBadAllShort, isScollato };
         }));
@@ -246,15 +277,21 @@ async function runFullScan() {
             else if (sig.isUltimate && !sig.isPushingHigh && !sig.isPushingLow) cardClass = 'ULTIMATE-COMBO';
 
             return `
-            <div class="card ${cardClass}">
-                ${sig.isPushingHigh ? `<div class="touch-pressure-alert">🔥 ${sig.highTouches} TOCCHI AL MAX: BREAKOUT LONG IMMINENTE</div>` : ''}
-                ${sig.isPushingLow ? `<div class="touch-support-alert">🧊 ${sig.lowTouches} TOCCHI AL MIN: BREAKDOWN SHORT IMMINENTE</div>` : ''}
-                ${sig.isUltimate && !sig.isPushingHigh && !sig.isPushingLow ? `<div class="combo-tag">💎 COMBO DEFINITIVA</div>` : ''}
-                
-                <div class="symbol-header">
-                    <a href="https://www.bybit.com/trade/usdt/${sig.s}" target="_blank" class="symbol-link">${sig.s}</a>
-                    <span style="font-weight:bold; color:#aaa">$${sig.curP}</span>
-                </div>
+    <div class="card ${cardClass} ${sig.squeezeVal ? 'is-squeeze' : ''}">
+        ${sig.isPushingHigh ? `<div class="touch-pressure-alert">🔥 ${sig.highTouches} TOCCHI AL MAX: BREAKOUT LONG IMMINENTE</div>` : ''}
+        ${sig.isPushingLow ? `<div class="touch-support-alert">🧊 ${sig.lowTouches} TOCCHI AL MIN: BREAKDOWN SHORT IMMINENTE</div>` : ''}
+        
+        <div class="symbol-header">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="https://www.bybit.com/trade/usdt/${sig.s}" target="_blank" class="symbol-link">${sig.s}</a>
+        ${sig.squeezeVal ? `<span class="squeeze-badge">SQUEEZE ${sig.squeezeVal}%</span>` : ''}
+    </div>
+    <span style="font-weight:bold; color:#aaa; font-size: 1.2em;">$${sig.curP}</span>
+</div>
+
+
+        ${sig.preBad ? `<div class="pre-bad-alert">⚡ ${sig.preBad.msg}</div>` : ''}
+               
 
                 <div class="daily-info">
                     <span>L: ${sig.low24h}</span>
